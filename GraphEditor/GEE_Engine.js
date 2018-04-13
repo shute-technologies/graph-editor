@@ -38,9 +38,33 @@ function GEE_Engine() {
         mSelf.ctx = mParentCanvasSelector[0].getContext("2d");
     }
     
+    this.DrawGUI = function(dt) {
+        var ctx = mSelf.ctx;
+        
+        // Clear
+        ctx.clearRect(0, 0, mWidth, mHeight);
+        
+        // Background
+        ctx.fillStyle = GEE_Styles.BackgroundColor;
+        ctx.fillRect(0, 0, mWidth, mHeight);
+        
+    }
+    
+    this.ComputeVariables = function() {
+        // responsive size
+        mParentCanvasSelector.attr('width', mWidth);
+        mParentCanvasSelector.attr('height', mHeight);
+    }
+    
     this.Update = function(dt) {
         // Update size dynamically
         mWidth = mParentSelector.width();
+        
+        // Compute
+        mSelf.ComputeVariables();
+        
+        // Draw
+        mSelf.DrawGUI(dt);
     }
     
     this.Destroy = function() {
