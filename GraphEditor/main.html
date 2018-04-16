@@ -4,6 +4,9 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         
          <script src="config/GEE_Styles.js"></script>
+        <script src="utils/GEE_Util.js"></script>
+        <script src="GEE_Graph.js"></script>
+        <script src="GEE_GraphConnection.js"></script>
         <script src="GEE_Engine.js"></script>
        
         
@@ -18,7 +21,12 @@
         $(document).ready(function(){
             var graph = new GEE_Engine();
             graph.Initialize("#graph-editor");
+            var grapAttack = graph.CreateGraph(100, 100, "Attack");
+            var grapIdle = graph.CreateGraph(200, 40, "Idle");
+            var grapWalk = graph.CreateGraph(40, 10, "Walk");
             
+            grapIdle.ConnectTo(grapAttack);
+            grapIdle.ConnectTo(grapWalk);
             
             setInterval(function() {
                 graph.Update(33);

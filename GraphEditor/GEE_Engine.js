@@ -10,6 +10,10 @@ function GEE_Engine() {
     var mWidth = 0;
     var mHeight = 0;
     
+    var mGraphs = [];
+    
+    this.ctx = undefined;
+    
     // internal for GUI
     this.GetWidth = function() { return mWidth; }
     this.GetHeight = function() { return mHeight; }
@@ -50,6 +54,19 @@ function GEE_Engine() {
         
     }
     
+    this.CreateGraph = function(x, y, name) {
+        var graph = new GEE_Graph(mSelf);
+        graph.Initialize(x, y, name);
+        
+        mGraphs.push(graph);
+        
+        return graph;
+    }
+    
+    this.ConnectTo = function(graphFrom, graphTo, extraParams) {
+        graphFrom.ConnectTo(graphTo, extraParams);
+    }
+    
     this.ComputeVariables = function() {
         // responsive size
         mParentCanvasSelector.attr('width', mWidth);
@@ -62,9 +79,23 @@ function GEE_Engine() {
         
         // Compute
         mSelf.ComputeVariables();
-        
+
         // Draw
         mSelf.DrawGUI(dt);
+        
+        for (var i = 0; i < mGraphs.length; i++) {
+            mGraphs[i].Update(dt);
+        }
+    }
+    
+    this.DrawConnections = function(dt) {
+        for (var i = 0; i < mGraphs.length; i++) {
+            var connections = mGraphs[i].GetConnections();
+            
+            for (var k = 0; k < connections.length; k++) {
+                GEE_GraphConnection.Draw(mSelf.ctx, dt, connections[k]);
+            }
+        }
     }
     
     this.Destroy = function() {
