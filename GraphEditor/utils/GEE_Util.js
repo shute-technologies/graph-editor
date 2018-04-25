@@ -1,6 +1,5 @@
 function GEE_Util() {}
 
-
 GEE_Util.FragmentText = function(ctx, text, maxWidth) {
     var result = {
         Lines: [],
@@ -61,4 +60,17 @@ GEE_Util.FragmentText = function(ctx, text, maxWidth) {
     }
     
     return result;
+}
+
+GEE_Util.Lerp = function (value1, value2, time) {
+	return value1 + (value2 - value1) * time;
+}
+
+GEE_Util.CirclePosition = function (x0, y0, x1, y1, radius, offsetAngle) {
+	var angle = Math.atan2(y1-y0, x1-x0) + (offsetAngle === undefined ? 0 : offsetAngle);
+	
+	return {
+	  x: x0 + (radius * Math.cos(angle)),
+	  y: y0 + (radius * Math.sin(angle))
+	};
 }

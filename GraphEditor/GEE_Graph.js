@@ -4,19 +4,49 @@ function GEE_Graph(gee) {
     
     var mName = "";
     var mConnections = [];
+    var mReferences = [];
         
     this.x = 0;
     this.y = 0;
+    this.cx = 0;
+    this.cy = 0;
     this.Percentage = 0.5;
     
     this.GetName = function() { return mName; }
     this.GetConnections = function() { return mConnections; }
+    this.GetReferences = function() { return mReferences; }
+    this.GetGraphLinkedCount = function() { return mConnections.length + mReferences.length; }
     
     this.Initialize = function(x, y, name) {
         mName = name;
         
         mSelf.x = x;
         mSelf.y = y;
+        
+        mSelf.cx = x + GEE_Styles.Graph.SizeX * 0.5;
+        mSelf.cy = y + GEE_Styles.Graph.SizeY * 0.5;
+    }
+    
+    this.AddReferenceGraph = function(graph) {
+        var graphName = graph.GetName();
+        
+        if (mName !== graphName) {
+            var canReference = true;
+            
+            for (var i = 0; i < mReferences.length; i++) {
+                var reference = mReferences[i];
+                
+                if (reference && reference.GetName() === graphName) {
+                    canReference = false;
+                    break;
+                }
+            }
+            
+            if (canReference) {
+                // add reference
+                mReferences.push(graph);
+            }
+        }
     }
     
     this.ConnectTo = function(graph, extraParams) {
@@ -37,6 +67,9 @@ function GEE_Graph(gee) {
             if (canConnect) {
                 var connection = new GEE_GraphConnection(mSelf, graph, extraParams);
                 mConnections.push(connection);
+                
+                // add reference
+                graph.AddReferenceGraph(mSelf);
             }
         }
     }

@@ -83,6 +83,8 @@ function GEE_Engine() {
         // Draw
         mSelf.DrawGUI(dt);
         
+        mSelf.DrawConnections(dt);
+        
         for (var i = 0; i < mGraphs.length; i++) {
             mGraphs[i].Update(dt);
         }
@@ -91,9 +93,10 @@ function GEE_Engine() {
     this.DrawConnections = function(dt) {
         for (var i = 0; i < mGraphs.length; i++) {
             var connections = mGraphs[i].GetConnections();
+            var graphLinkedCount = mGraphs[i].GetGraphLinkedCount(); 
             
             for (var k = 0; k < connections.length; k++) {
-                GEE_GraphConnection.Draw(mSelf.ctx, dt, connections[k]);
+                GEE_GraphConnection.Draw(mSelf.ctx, dt, connections[k], 0.12);
             }
         }
     }

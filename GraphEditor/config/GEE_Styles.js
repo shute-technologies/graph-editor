@@ -6,6 +6,9 @@ GEE_Styles.BackgroundColor = "#4e4e4e";
 GEE_Styles.CStroke_Color = "#6e6e6e";
 GEE_Styles.Font_Color = "#f9f9f9";
 
+GEE_Styles.ArrowColor_Stroke = "#000000";
+GEE_Styles.ArrowColor_Fill = "#6e6e6e";
+
 GEE_Styles.Graph = {
   Color: "#6d6d6d",
   LineSize: 1,
