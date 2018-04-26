@@ -5,7 +5,7 @@ function GEE_GraphConnection(graphFrom, graphTo, extraParams) {
 }
 
 GEE_GraphConnection.OffsetRadius = 20;
-
+GEE_GraphConnection.OffsetAngle = 0.12;
 
 GEE_GraphConnection.Draw = function(ctx, dt, connection, offsetAngle) {
     var graphFrom = connection.GraphFrom;

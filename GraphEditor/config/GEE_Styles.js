@@ -10,6 +10,7 @@ GEE_Styles.ArrowColor_Stroke = "#000000";
 GEE_Styles.ArrowColor_Fill = "#6e6e6e";
 
 GEE_Styles.Graph = {
+  StartColor: "#9d9d9d",
   Color: "#6d6d6d",
   LineSize: 1,
   SizeX: 120,

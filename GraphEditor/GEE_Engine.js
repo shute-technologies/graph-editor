@@ -9,8 +9,10 @@ function GEE_Engine() {
     
     var mWidth = 0;
     var mHeight = 0;
+    var mIsPlaying = false;
     
     var mGraphs = [];
+    var mStartGraph = undefined;
     
     this.ctx = undefined;
     
@@ -28,6 +30,69 @@ function GEE_Engine() {
         mHeight = 400;
         
         mSelf.CreateGUI();
+        mSelf.CreateMouseEvents();
+    }
+    
+    this.CreateMouseEvents = function() {
+        // Mouse Move
+        mParentCanvasSelector.on('mousemove', function(evt) {
+            var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
+            // on mouse move
+            for (var i = 0; i < mGraphs.length; i++) {
+                mGraphs[i].OnMouseMove(mousePos);
+            }
+        });
+        
+        // Mouse Up
+        mParentCanvasSelector.on('mouseup', function(evt) {
+            var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
+            // on mouse up
+            for (var i = 0; i < mGraphs.length; i++) {
+                mGraphs[i].OnMouseUp(mousePos);
+            }
+        });
+        
+        // Move Down
+        mParentCanvasSelector.on('mousedown', function(evt) {
+            var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
+            // on mouse move
+            for (var i = 0; i < mGraphs.length; i++) {
+                mGraphs[i].OnMouseDown(mousePos);
+            }
+        });
+        
+        function __getMousePos(canvas, evt) {
+            var rect = canvas.getBoundingClientRect();
+            
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+    }
+    
+    this.Play = function() {
+        if (mStartGraph) {
+            mIsPlaying = true;
+            mStartGraph.Play();
+        }
+    }
+    
+    this.Stop = function() {
+        mIsPlaying = false;
+        
+        for (var i = 0; i < mGraphs.length; i++) {
+            mGraphs[i].Stop();
+        }
+    }
+    
+    this.ChangeStartGraph = function(graph) {
+        for (var i = 0; i < mGraphs.length; i++) {
+            mGraphs[i].IsStart = false;
+        }
+        
+        graph.IsStart = true;
+        mStartGraph = graph;
     }
     
     this.CreateGUI = function() {
@@ -96,7 +161,8 @@ function GEE_Engine() {
             var graphLinkedCount = mGraphs[i].GetGraphLinkedCount(); 
             
             for (var k = 0; k < connections.length; k++) {
-                GEE_GraphConnection.Draw(mSelf.ctx, dt, connections[k], 0.12);
+                GEE_GraphConnection.Draw(mSelf.ctx, dt, connections[k], 
+                    GEE_GraphConnection.OffsetAngle);
             }
         }
     }

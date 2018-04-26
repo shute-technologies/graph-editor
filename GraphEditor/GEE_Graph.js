@@ -10,7 +10,15 @@ function GEE_Graph(gee) {
     this.y = 0;
     this.cx = 0;
     this.cy = 0;
-    this.Percentage = 0.5;
+    this.Percentage = 0;
+    this.Speed = 1 + Math.random() * 2;
+    this.IsLoop = false;
+    this.IsStart = false;
+    
+    var mIsPlaying = false;
+    var mMouseIsDown = false;
+    var mMousePosition = {x: 0, y:0};
+    var mMousePositionOffset = {x: 0, y:0};
     
     this.GetName = function() { return mName; }
     this.GetConnections = function() { return mConnections; }
@@ -25,6 +33,16 @@ function GEE_Graph(gee) {
         
         mSelf.cx = x + GEE_Styles.Graph.SizeX * 0.5;
         mSelf.cy = y + GEE_Styles.Graph.SizeY * 0.5;
+    }
+    
+    this.Play = function() {
+        mIsPlaying = true;
+        mSelf.Percentage = 0;
+    }
+    
+    this.Stop = function() {
+        mIsPlaying = false;
+        mSelf.Percentage = 0;
     }
     
     this.AddReferenceGraph = function(graph) {
@@ -74,11 +92,59 @@ function GEE_Graph(gee) {
         }
     }
     
+    this.OnMouseMove = function(mousePos) {
+        mMousePosition = mousePos;
+    }
+    
+    this.OnMouseUp = function(mousePos) {
+        mMouseIsDown = false;
+    }
+    
+    this.OnMouseDown = function(mousePos) {
+        if (!mIsPlaying) {
+            
+            var width = GEE_Styles.Graph.SizeX;
+            var height = GEE_Styles.Graph.SizeY;
+            var isHitted = GEE_Util.HitTestByPoint(mSelf.x, mSelf.y, width, height, 
+                mousePos.x, mousePos.y);
+                
+            if (isHitted) {
+                mMouseIsDown = true;
+                mMousePositionOffset.x = mSelf.x - mousePos.x;
+                mMousePositionOffset.y = mSelf.y - mousePos.y;
+            }
+        }
+    }
+    
     this.Update = function(dt) {
-        mSelf.Percentage = mSelf.Percentage > 1.0 ? 1.0 : mSelf.Percentage;
-        mSelf.Percentage = mSelf.Percentage < 0.0 ? 0.0 : mSelf.Percentage;
-        
         mSelf.Draw(dt);
+        
+        if (mIsPlaying) {
+            mSelf.Percentage += mSelf.Speed * dt;
+            
+            if (mSelf.Percentage >= 1.0) {
+                mSelf.Percentage = 0;
+                
+                if (!mSelf.IsLoop) {
+                    mIsPlaying = false;
+                }
+                
+                for (var i = 0; i < mConnections.length; i++) {
+                    mConnections[i].GraphTo.Play();
+                }
+            }
+        }
+        else {
+            mSelf.Percentage = mSelf.Percentage > 1.0 ? 1.0 : mSelf.Percentage;
+            mSelf.Percentage = mSelf.Percentage < 0.0 ? 0.0 : mSelf.Percentage;
+            
+            if (mMouseIsDown) {
+                mSelf.x = mMousePosition.x + mMousePositionOffset.x;
+                mSelf.y = mMousePosition.y + mMousePositionOffset.y;
+                mSelf.cx = mSelf.x + GEE_Styles.Graph.SizeX * 0.5;
+                mSelf.cy = mSelf.y + GEE_Styles.Graph.SizeY * 0.5;
+            }
+        }
     }
     
     this.Draw = function(dt) {
@@ -87,7 +153,7 @@ function GEE_Graph(gee) {
         // Draw Rect
         ctx.beginPath();
         ctx.rect(mSelf.x, mSelf.y, GEE_Styles.Graph.SizeX, GEE_Styles.Graph.SizeY);
-        ctx.fillStyle = GEE_Styles.Graph.Color;
+        ctx.fillStyle = !mSelf.IsStart ? GEE_Styles.Graph.Color : GEE_Styles.Graph.StartColor;
         ctx.fill();
         ctx.lineWidth = GEE_Styles.Graph.LineSize;
         ctx.strokeStyle = 'black';

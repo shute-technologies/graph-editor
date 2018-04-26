@@ -74,3 +74,20 @@ GEE_Util.CirclePosition = function (x0, y0, x1, y1, radius, offsetAngle) {
 	  y: y0 + (radius * Math.sin(angle))
 	};
 }
+
+GEE_Util.HitTestCenterByPoint = function (x, y, sizeX, sizeY, pointX, pointY) {
+    var hSize = sizeX * 0.5;        
+    var vSize = sizeY * 0.5;        
+    
+    var result = (x - hSize) < pointX && (x + hSize) > pointX && 
+        (y - vSize) < pointY && (y + vSize) > pointY;
+    
+    return result;
+}
+
+GEE_Util.HitTestByPoint = function (x, y, sizeX, sizeY, pointX, pointY) {
+    var result = x < pointX && (x + sizeX) > pointX && 
+        y < pointY && (y + sizeY) > pointY;
+    
+    return result;
+}

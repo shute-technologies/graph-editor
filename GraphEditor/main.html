@@ -21,28 +21,30 @@
         $(document).ready(function(){
             var geeEngine = new GEE_Engine();
             geeEngine.Initialize("#graph-editor");
-            var grapAttack = geeEngine.CreateGraph(20, 50, "Attack");
+            var grapInit = geeEngine.CreateGraph(20, 50, "Init");
             var grapIdle = geeEngine.CreateGraph(380, 40, "Idle");
             var grapWalk = geeEngine.CreateGraph(500, 100, "Walk");
             var grapCrunch = geeEngine.CreateGraph(400, 200, "Crunch");
             var grapFlee = geeEngine.CreateGraph(100, 280, "Flee");
             var grapUppercut = geeEngine.CreateGraph(600, 240, "Uppercut");
             
-            grapIdle.ConnectTo(grapAttack);
-            grapIdle.ConnectTo(grapWalk);
             grapIdle.ConnectTo(grapCrunch);
             grapIdle.ConnectTo(grapFlee);
             
             grapWalk.ConnectTo(grapIdle);
-            grapAttack.ConnectTo(grapIdle);
+            grapInit.ConnectTo(grapIdle);
             
             grapCrunch.ConnectTo(grapUppercut);
             grapCrunch.ConnectTo(grapWalk);
             grapUppercut.ConnectTo(grapCrunch);
             grapUppercut.ConnectTo(grapWalk);
+            grapUppercut.ConnectTo(grapInit);
+            
+            geeEngine.ChangeStartGraph(grapInit);
+            //geeEngine.Play();
             
             setInterval(function() {
-                geeEngine.Update(33);
+                geeEngine.Update(0.01667);
             }, 33);
         });
     </script>
