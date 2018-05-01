@@ -12,6 +12,7 @@ GEE_Styles.ArrowColor_Fill = "#6e6e6e";
 GEE_Styles.Graph = {
   StartColor: "#9d9d9d",
   Color: "#6d6d6d",
+  MouseOverColor: "#3d3d3d",
   LineSize: 1,
   SizeX: 120,
   SizeY: 40,
@@ -20,6 +21,10 @@ GEE_Styles.Graph = {
   TextOffsetY: 40 / 2,
   Transition: {
     SizeY: 4
+  },
+  CircleConnector: {
+    Radius: 5,
+    OffsetCircle: 5
   }
 };
 

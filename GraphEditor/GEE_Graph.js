@@ -11,9 +11,18 @@ function GEE_Graph(gee) {
     this.cx = 0;
     this.cy = 0;
     this.Percentage = 0;
-    this.Speed = 1 + Math.random() * 2;
+    this.Speed = 1;
     this.IsLoop = false;
     this.IsStart = false;
+    this.IsMouseOver = false;
+    this.PlaybackObject = undefined;
+    // A playbackObject has this interface:
+    // Function: Play()
+    // Function: Stop()
+    // Function: Pause(inTime) --in seconds
+    // Function: Update(dt) --normalized delta time
+    // Getter: GetCurrentTime()
+    // Getter: GetAnimationSeconds()
     
     var mIsPlaying = false;
     var mMouseIsDown = false;
@@ -38,11 +47,19 @@ function GEE_Graph(gee) {
     this.Play = function() {
         mIsPlaying = true;
         mSelf.Percentage = 0;
+        
+        if (mSelf.PlaybackObject) {
+            mSelf.PlaybackObject.Play();
+        }
     }
     
     this.Stop = function() {
         mIsPlaying = false;
         mSelf.Percentage = 0;
+        
+        if (mSelf.PlaybackObject) {
+            mSelf.PlaybackObject.Stop();
+        }
     }
     
     this.AddReferenceGraph = function(graph) {
@@ -102,13 +119,10 @@ function GEE_Graph(gee) {
     
     this.OnMouseDown = function(mousePos) {
         if (!mIsPlaying) {
+            var isHittedGraph = mSelf.IsHittedGraph(mousePos).IsHitted;
+            var isHittedConnector = mSelf.IsHittedConnector(mousePos).IsHitted;
             
-            var width = GEE_Styles.Graph.SizeX;
-            var height = GEE_Styles.Graph.SizeY;
-            var isHitted = GEE_Util.HitTestByPoint(mSelf.x, mSelf.y, width, height, 
-                mousePos.x, mousePos.y);
-                
-            if (isHitted) {
+            if (isHittedGraph && !isHittedConnector) {
                 mMouseIsDown = true;
                 mMousePositionOffset.x = mSelf.x - mousePos.x;
                 mMousePositionOffset.y = mSelf.y - mousePos.y;
@@ -116,23 +130,70 @@ function GEE_Graph(gee) {
         }
     }
     
+    this.IsHittedGraph = function(mousePos) {
+        var width = GEE_Styles.Graph.SizeX;
+        var height = GEE_Styles.Graph.SizeY;
+        
+        var isHittedGraph = GEE_Util.HitTestByPoint(mSelf.x, mSelf.y, 
+            GEE_Styles.Graph.SizeX, GEE_Styles.Graph.SizeY, mousePos.x, 
+            mousePos.y);
+            
+        return {
+            IsHitted: isHittedGraph,
+            Graph: mSelf
+        };
+    }
+    
+    this.IsHittedConnector = function(mousePos) {
+        var width = GEE_Styles.Graph.SizeX;
+        var radius = GEE_Styles.Graph.CircleConnector.Radius;
+        var cX = (mSelf.x + width) - (GEE_Styles.Graph.CircleConnector.OffsetCircle + radius * 2);
+        var cY = mSelf.y;
+        var cWidth = (radius * 2) + GEE_Styles.Graph.CircleConnector.OffsetCircle;
+        var cHeight = (radius * 2) + GEE_Styles.Graph.CircleConnector.OffsetCircle;
+            
+        var isHittedConnector = GEE_Util.HitTestByPoint(cX, cY, cWidth, 
+            cHeight, mousePos.x, mousePos.y);
+            
+        return {
+            IsHitted: isHittedConnector,
+            Graph: mSelf,
+            ConnectorX: cX + radius + radius * 0.5,
+            ConnectorY: cY + radius + radius * 0.5
+        };
+    }
+    
     this.Update = function(dt) {
         mSelf.Draw(dt);
         
         if (mIsPlaying) {
-            mSelf.Percentage += mSelf.Speed * dt;
+            if (mSelf.PlaybackObject === undefined) {
+                mSelf.Percentage += mSelf.Speed * dt;
+            }
+            else {
+                // Only if have a playback object with this interface
+                var currentTime = mSelf.PlaybackObject.GetCurrentTime();
+                var totalSeconds = mSelf.PlaybackObject.GetAnimationSeconds();
+                
+                mSelf.Percentage = currentTime / totalSeconds;
+            }
             
             if (mSelf.Percentage >= 1.0) {
                 mSelf.Percentage = 0;
                 
                 if (!mSelf.IsLoop) {
                     mIsPlaying = false;
+                    // Pause the animation on the end
+                    if (mSelf.PlaybackObject) mSelf.PlaybackObject.Pause(mSelf.PlaybackObject.GetAnimationSeconds());
                 }
                 
                 for (var i = 0; i < mConnections.length; i++) {
                     mConnections[i].GraphTo.Play();
                 }
             }
+            
+            // Update PlaybackObject
+            if (mSelf.PlaybackObject) mSelf.PlaybackObject.Update(dt);
         }
         else {
             mSelf.Percentage = mSelf.Percentage > 1.0 ? 1.0 : mSelf.Percentage;
@@ -153,7 +214,14 @@ function GEE_Graph(gee) {
         // Draw Rect
         ctx.beginPath();
         ctx.rect(mSelf.x, mSelf.y, GEE_Styles.Graph.SizeX, GEE_Styles.Graph.SizeY);
-        ctx.fillStyle = !mSelf.IsStart ? GEE_Styles.Graph.Color : GEE_Styles.Graph.StartColor;
+        
+        if (!mSelf.IsMouseOver) {
+            ctx.fillStyle = !mSelf.IsStart ? GEE_Styles.Graph.Color : GEE_Styles.Graph.StartColor;
+        }
+        else {
+            ctx.fillStyle = GEE_Styles.Graph.MouseOverColor;
+        }
+        
         ctx.fill();
         ctx.lineWidth = GEE_Styles.Graph.LineSize;
         ctx.strokeStyle = 'black';
@@ -186,6 +254,20 @@ function GEE_Graph(gee) {
         for (var i = 0; i < resultLines.LinesQuantity; i++) {
             ctx.fillText(resultLines.Lines[i], textX, textY + (resultLines.Height * i) - offsetY);
         }
+        
+        // Draw connector trigger
+        var radius = GEE_Styles.Graph.CircleConnector.Radius;
+        var offsetCircle = GEE_Styles.Graph.CircleConnector.OffsetCircle;
+        
+        ctx.beginPath();
+        ctx.arc(mSelf.x + GEE_Styles.Graph.SizeX - (radius * 0.5) - offsetCircle, 
+            mSelf.y + (radius * 0.5) + offsetCircle, 
+            radius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = '#990000';
+        ctx.fill();
+        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = '#003300';
+        ctx.stroke();
         
     }
     

@@ -15,12 +15,26 @@ function GEE_Engine() {
     var mStartGraph = undefined;
     
     this.ctx = undefined;
+    this.IsForcePercentage = false;
+    
+    var mTryingToConnect = {
+        IsTrying: false,
+        FromX: 0,
+        FromY: 0,
+        FromGraph: undefined,
+        MouseOverGraph: undefined,
+        MousePos: {
+            x: 0,
+            y: 0
+            }
+        };
     
     // internal for GUI
     this.GetWidth = function() { return mWidth; }
     this.GetHeight = function() { return mHeight; }
     
     this.GetParentSelector = function() { return mParentSelector; }
+    this.GetTryingToConnect = function() { return mTryingToConnect; }
     
     this.Initialize = function(selectorName) {
         mParentSelectorName = selectorName;
@@ -41,6 +55,10 @@ function GEE_Engine() {
             for (var i = 0; i < mGraphs.length; i++) {
                 mGraphs[i].OnMouseMove(mousePos);
             }
+            
+            if (mTryingToConnect.IsTrying) {
+                mTryingToConnect.MousePos = mousePos;    
+            }
         });
         
         // Mouse Up
@@ -50,14 +68,46 @@ function GEE_Engine() {
             for (var i = 0; i < mGraphs.length; i++) {
                 mGraphs[i].OnMouseUp(mousePos);
             }
+            
+            if (mTryingToConnect.IsTrying) {
+                if (mTryingToConnect.MouseOverGraph) {
+                    mTryingToConnect.MouseOverGraph.IsMouseOver = false;
+                    
+                    // Now connect the graphs
+                    mTryingToConnect.FromGraph.ConnectTo(mTryingToConnect.MouseOverGraph);
+                }
+                
+                mTryingToConnect.IsTrying = false;
+                mTryingToConnect.FromX = 0;
+                mTryingToConnect.FromY = 0;
+                mTryingToConnect.FromGraph = undefined;
+                mTryingToConnect.MouseOverGraph = undefined;
+            }
         });
         
         // Move Down
         mParentCanvasSelector.on('mousedown', function(evt) {
+            var hittedConnector = false;
             var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
             // on mouse move
-            for (var i = 0; i < mGraphs.length; i++) {
-                mGraphs[i].OnMouseDown(mousePos);
+            for (var i = 0, length = mGraphs.length; i < length; i++) {
+                hittedConnector = mGraphs[i].IsHittedConnector(mousePos);
+                
+                if (hittedConnector.IsHitted) { break; }
+            }
+            
+            if (!hittedConnector.IsHitted) {
+                for (var i = 0, length = mGraphs.length; i < length; i++) {
+                    mGraphs[i].OnMouseDown(mousePos);
+                }
+            }
+            else {
+                mTryingToConnect.MousePos = mousePos;
+                
+                mTryingToConnect.IsTrying = true;
+                mTryingToConnect.FromGraph = hittedConnector.Graph;
+                mTryingToConnect.FromX = hittedConnector.ConnectorX;
+                mTryingToConnect.FromY = hittedConnector.ConnectorY;
             }
         });
         
@@ -149,9 +199,33 @@ function GEE_Engine() {
         mSelf.DrawGUI(dt);
         
         mSelf.DrawConnections(dt);
-        
+
         for (var i = 0; i < mGraphs.length; i++) {
             mGraphs[i].Update(dt);
+        }
+
+        if (mTryingToConnect.IsTrying) {
+            var mousePos = mTryingToConnect.MousePos;
+            
+            GEE_GraphConnection.DrawPreConnector(mSelf.ctx, mTryingToConnect.FromX,
+                mTryingToConnect.FromY, mousePos.x, mousePos.y);
+                
+            var graphResult = GEE_Engine.GetGraphByPosition(mGraphs, mousePos.x, mousePos.y);
+            
+            if (graphResult.IsHitted) {
+                if (mTryingToConnect.MouseOverGraph) {
+                    mTryingToConnect.MouseOverGraph.IsMouseOver = false;
+                }
+                
+                mTryingToConnect.MouseOverGraph = graphResult.Graph;
+                mTryingToConnect.MouseOverGraph.IsMouseOver = true;
+            }
+            else {
+                if (mTryingToConnect.MouseOverGraph) {
+                    mTryingToConnect.MouseOverGraph.IsMouseOver = false;
+                    mTryingToConnect.MouseOverGraph = undefined;
+                }
+            }
         }
     }
     
@@ -170,4 +244,15 @@ function GEE_Engine() {
     this.Destroy = function() {
         
     }
+}
+
+GEE_Engine.GetGraphByPosition = function(graphs, x, y) {
+    var result = undefined;
+    
+    for (var i = 0, length = graphs.length; i < length; i++) {
+        result = graphs[i].IsHittedGraph({ x: x, y: y});
+        if (result.IsHitted) break;
+    }
+    
+    return result;
 }

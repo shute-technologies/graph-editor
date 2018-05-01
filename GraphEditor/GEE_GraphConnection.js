@@ -15,14 +15,17 @@ GEE_GraphConnection.Draw = function(ctx, dt, connection, offsetAngle) {
         graphTo.cx, graphTo.cy, offsetAngle);
 }
 
-GEE_GraphConnection.DrawArrow = function(ctx, fromx, fromy, tox, toy, offsetAngle){
+GEE_GraphConnection.DrawArrow = function(ctx, fromx, fromy, tox, toy, offsetAngle, offsetRadius, colorStroke, colorFill){
+    colorStroke = colorStroke === undefined ? GEE_Styles.ArrowColor_Stroke : colorStroke;
+    colorFill = colorFill === undefined ? GEE_Styles.ArrowColor_Fill : colorFill;
     offsetAngle = offsetAngle === undefined ? 0 : offsetAngle;
+    offsetRadius = offsetRadius === undefined ? GEE_GraphConnection.OffsetRadius : offsetRadius;
     
     var headlen = 5;
     var startPosition = GEE_Util.CirclePosition(fromx, fromy, tox, toy, 
-        GEE_GraphConnection.OffsetRadius, offsetAngle);
+        offsetRadius, offsetAngle);
     var endPosition = GEE_Util.CirclePosition(tox, toy, fromx, fromy, 
-        GEE_GraphConnection.OffsetRadius, -offsetAngle);
+        offsetRadius, -offsetAngle);
     
     fromx = startPosition.x;
     fromy = startPosition.y;
@@ -37,7 +40,7 @@ GEE_GraphConnection.DrawArrow = function(ctx, fromx, fromy, tox, toy, offsetAngl
     ctx.beginPath();
     ctx.moveTo(fromx, fromy);
     ctx.lineTo(tox, toy);
-    ctx.strokeStyle = GEE_Styles.ArrowColor_Stroke;
+    ctx.strokeStyle = colorStroke;
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
@@ -54,9 +57,19 @@ GEE_GraphConnection.DrawArrow = function(ctx, fromx, fromy, tox, toy, offsetAngl
     ctx.lineTo(middleX-headlen*Math.cos(angle-Math.PI/7),middleY-headlen*Math.sin(angle-Math.PI/7));
 
     //draws the paths created above
-    ctx.strokeStyle = GEE_Styles.ArrowColor_Stroke;
+    ctx.strokeStyle = colorStroke;
     ctx.lineWidth = 0;
     ctx.stroke();
-    ctx.fillStyle = GEE_Styles.ArrowColor_Fill;
+    ctx.fillStyle = colorFill;
     ctx.fill();
+}
+
+GEE_GraphConnection.DrawPreConnector = function(ctx, fromx, fromy, tox, toy) {
+    var offsetAngle = 0;
+    var offsetRadius = 0;
+    var colorStroke = "#003300";
+    var colorFill = "#990000";
+    
+    GEE_GraphConnection.DrawArrow(ctx, fromx, fromy, tox, toy, offsetAngle, 
+        offsetRadius, colorStroke, colorFill);
 }
