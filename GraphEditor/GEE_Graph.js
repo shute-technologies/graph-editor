@@ -84,6 +84,17 @@ function GEE_Graph(gee) {
         }
     }
     
+    this.RemoveReference = function(connection) {
+        for (var i = 0; i < mReferences.length; i++) {
+            var tmpReference = mReferences[i];
+            
+            if (tmpReference && tmpReference.GetName() === connection.GraphFrom.GetName()) {
+                mReferences.splice(i, 1);
+                break;
+            }
+        }
+    }
+    
     this.ConnectTo = function(graph, extraParams) {
         var graphName = graph.GetName();
         
@@ -107,6 +118,21 @@ function GEE_Graph(gee) {
                 graph.AddReferenceGraph(mSelf);
             }
         }
+    }
+    
+    this.RemoveConnection = function(connection) {
+        // Remove the connection
+        for (var i = 0; i < mConnections.length; i++) {
+            var tmpConnection = mConnections[i];
+            
+            if (tmpConnection.GraphTo.GetName() === connection.GraphTo.GetName()) {
+                mConnections.splice(i, 1);
+                break;
+            }
+        }
+        
+        // Remove also the reference
+        connection.GraphTo.RemoveReference(tmpConnection);
     }
     
     this.OnMouseMove = function(mousePos) {
@@ -272,7 +298,13 @@ function GEE_Graph(gee) {
     }
     
     this.Destroy = function() {
+        mSelf.PlaybackObject = undefined;
+        
         mSelf = undefined;
         mGEE = undefined;
+        mMousePosition = undefined;
+        mMousePositionOffset = undefined;
+        mConnections = undefined;
+        mReferences = undefined;
     }
 }

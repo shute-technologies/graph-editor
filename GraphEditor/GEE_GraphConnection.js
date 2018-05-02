@@ -2,24 +2,33 @@ function GEE_GraphConnection(graphFrom, graphTo, extraParams) {
     this.GraphFrom = graphFrom;
     this.GraphTo = graphTo;
     this.ExtraParams = extraParams;
+    this.OnFocus = false;
 }
 
 GEE_GraphConnection.OffsetRadius = 20;
-GEE_GraphConnection.OffsetAngle = 0.12;
+GEE_GraphConnection.OffsetAngle = 0.16;
 
 GEE_GraphConnection.Draw = function(ctx, dt, connection, offsetAngle) {
     var graphFrom = connection.GraphFrom;
     var graphTo = connection.GraphTo;
 
     GEE_GraphConnection.DrawArrow(ctx, graphFrom.cx, graphFrom.cy, 
-        graphTo.cx, graphTo.cy, offsetAngle);
+        graphTo.cx, graphTo.cy, offsetAngle, undefined, undefined, undefined, 
+        connection.OnFocus);
 }
 
-GEE_GraphConnection.DrawArrow = function(ctx, fromx, fromy, tox, toy, offsetAngle, offsetRadius, colorStroke, colorFill){
+GEE_GraphConnection.DrawArrow = function(ctx, fromx, fromy, tox, toy, offsetAngle, 
+    offsetRadius, colorStroke, colorFill, onFocus){
+    
+    onFocus = onFocus === undefined ? false: onFocus;
     colorStroke = colorStroke === undefined ? GEE_Styles.ArrowColor_Stroke : colorStroke;
     colorFill = colorFill === undefined ? GEE_Styles.ArrowColor_Fill : colorFill;
     offsetAngle = offsetAngle === undefined ? 0 : offsetAngle;
     offsetRadius = offsetRadius === undefined ? GEE_GraphConnection.OffsetRadius : offsetRadius;
+    
+    if (onFocus) {
+        colorStroke = GEE_Styles.ArrowColorFocus_Stroke;
+    }
     
     var headlen = 5;
     var startPosition = GEE_Util.CirclePosition(fromx, fromy, tox, toy, 
@@ -62,6 +71,7 @@ GEE_GraphConnection.DrawArrow = function(ctx, fromx, fromy, tox, toy, offsetAngl
     ctx.stroke();
     ctx.fillStyle = colorFill;
     ctx.fill();
+    ctx.closePath()
 }
 
 GEE_GraphConnection.DrawPreConnector = function(ctx, fromx, fromy, tox, toy) {
@@ -72,4 +82,34 @@ GEE_GraphConnection.DrawPreConnector = function(ctx, fromx, fromy, tox, toy) {
     
     GEE_GraphConnection.DrawArrow(ctx, fromx, fromy, tox, toy, offsetAngle, 
         offsetRadius, colorStroke, colorFill);
+}
+
+GEE_GraphConnection.GetPosition = function(connection, offsetAngle) {
+    offsetAngle = offsetAngle === undefined ? 0 : offsetAngle;
+    var offsetRadius = GEE_GraphConnection.OffsetRadius;
+    
+    var graphFrom = connection.GraphFrom;
+    var graphTo = connection.GraphTo;
+    
+    var fromx = graphFrom.cx;
+    var fromy = graphFrom.cy; 
+    var tox = graphTo.cx;
+    var toy = graphTo.cy;
+    
+    var startPosition = GEE_Util.CirclePosition(fromx, fromy, tox, toy, 
+        offsetRadius, offsetAngle);
+    var endPosition = GEE_Util.CirclePosition(tox, toy, fromx, fromy, 
+        offsetRadius, -offsetAngle);
+    
+    fromx = startPosition.x;
+    fromy = startPosition.y;
+    tox = endPosition.x;
+    toy = endPosition.y;
+    
+    return {
+        FromX: fromx,
+        FromY: fromy,
+        ToX: tox,
+        ToY: toy,
+    }
 }

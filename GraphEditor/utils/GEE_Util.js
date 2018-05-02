@@ -91,3 +91,36 @@ GEE_Util.HitTestByPoint = function (x, y, sizeX, sizeY, pointX, pointY) {
     
     return result;
 }
+
+GEE_Util.IsPointInPolygon = function(point, polygon) {
+    var minX = polygon[0].x;
+    var maxX = polygon[0].x;
+    var minY = polygon[0].y;
+    var maxY = polygon[0].y;
+
+    for (var i = 1; i < polygon.length; i++) {
+        var tmp_point = polygon[i];
+        
+        minX = Math.min(tmp_point.x, minX);
+        maxX = Math.max(tmp_point.x, maxX);
+        minY = Math.min(tmp_point.y, minY);
+        maxY = Math.max(tmp_point.x, maxY);
+    }
+
+    if (point.x < minX || point.x > maxX || point.y < minY || point.y > maxY) {
+        return false;
+    }
+
+    var pointInsidePolygon = false;
+
+    for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        if ((polygon[i].y > point.y) != (polygon[j].y > point.y) && point.x < 
+            (polygon[j].x - polygon[i].x) * (point.y - polygon[i].y) / 
+            (polygon[j].y - polygon[i].y) + polygon[i].x) {
+
+            pointInsidePolygon = !pointInsidePolygon;
+        }
+    }
+
+    return pointInsidePolygon;
+}

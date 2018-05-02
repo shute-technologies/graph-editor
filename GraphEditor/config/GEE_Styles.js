@@ -7,6 +7,7 @@ GEE_Styles.CStroke_Color = "#6e6e6e";
 GEE_Styles.Font_Color = "#f9f9f9";
 
 GEE_Styles.ArrowColor_Stroke = "#000000";
+GEE_Styles.ArrowColorFocus_Stroke = "white";
 GEE_Styles.ArrowColor_Fill = "#6e6e6e";
 
 GEE_Styles.Graph = {

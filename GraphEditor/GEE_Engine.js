@@ -28,6 +28,9 @@ function GEE_Engine() {
             y: 0
             }
         };
+    var mOnFocusConnection = {
+        Connection: undefined
+    };
     
     // internal for GUI
     this.GetWidth = function() { return mWidth; }
@@ -82,6 +85,21 @@ function GEE_Engine() {
                 mTryingToConnect.FromY = 0;
                 mTryingToConnect.FromGraph = undefined;
                 mTryingToConnect.MouseOverGraph = undefined;
+            }
+            
+            // Unfocus current one
+            if (mOnFocusConnection.Connection) { 
+                mOnFocusConnection.Connection.OnFocus = false;
+                mOnFocusConnection.Connection = undefined;
+            }
+            
+            // Now search a connection to Focus
+            var connection = GEE_Engine.GetConnectionByPosition(mGraphs, 
+                mousePos.x, mousePos.y);
+                
+            if (connection) {
+                mOnFocusConnection.Connection = connection;
+                mOnFocusConnection.Connection.OnFocus = true;
             }
         });
         
@@ -166,7 +184,6 @@ function GEE_Engine() {
         // Background
         ctx.fillStyle = GEE_Styles.BackgroundColor;
         ctx.fillRect(0, 0, mWidth, mHeight);
-        
     }
     
     this.CreateGraph = function(x, y, name) {
@@ -180,6 +197,10 @@ function GEE_Engine() {
     
     this.ConnectTo = function(graphFrom, graphTo, extraParams) {
         graphFrom.ConnectTo(graphTo, extraParams);
+    }
+    
+    this.RemoveConnection = function(connection) {
+        connection.GraphFrom.RemoveConnection(connection);
     }
     
     this.ComputeVariables = function() {
@@ -203,7 +224,8 @@ function GEE_Engine() {
         for (var i = 0; i < mGraphs.length; i++) {
             mGraphs[i].Update(dt);
         }
-
+        
+        // Do trying to connect to...
         if (mTryingToConnect.IsTrying) {
             var mousePos = mTryingToConnect.MousePos;
             
@@ -212,7 +234,7 @@ function GEE_Engine() {
                 
             var graphResult = GEE_Engine.GetGraphByPosition(mGraphs, mousePos.x, mousePos.y);
             
-            if (graphResult.IsHitted) {
+            if (graphResult.IsHitted && (graphResult.Graph.GetName() !== mTryingToConnect.FromGraph.GetName())) {
                 if (mTryingToConnect.MouseOverGraph) {
                     mTryingToConnect.MouseOverGraph.IsMouseOver = false;
                 }
@@ -242,7 +264,16 @@ function GEE_Engine() {
     }
     
     this.Destroy = function() {
+        for (var i = 0; i < mGraphs.length; i++) {
+            mGraphs[i].Destroy();
+        }
         
+        mGraphs = undefined;
+        mParentSelector = undefined;
+        mParentCanvasSelector = undefined;
+        mStartGraph = undefined;
+        mTryingToConnect = undefined;
+        mOnFocusConnection = undefined;
     }
 }
 
@@ -255,4 +286,52 @@ GEE_Engine.GetGraphByPosition = function(graphs, x, y) {
     }
     
     return result;
+}
+
+GEE_Engine.GetConnectionByPosition = function(graphs, x, y, ctx) {
+    var resultConnection = undefined;  
+    var elevation = 3;
+    var isDebug = false && ctx !== undefined;
+    var perpendicularConst = Math.PI * 0.5;
+    
+    for (var i = 0, length = graphs.length; i < length; i++) {
+        var connections = graphs[i].GetConnections();
+        
+        for (var j = 0; j < connections.length; j++) {
+            var resultPosition = GEE_GraphConnection.GetPosition(connections[j], 
+                GEE_GraphConnection.OffsetAngle);
+                
+            var cp0 = GEE_Util.CirclePosition(resultPosition.FromX, resultPosition.FromY, 
+                resultPosition.ToX, resultPosition.ToY, elevation, perpendicularConst);
+            var cp1 = GEE_Util.CirclePosition(resultPosition.FromX, resultPosition.FromY, 
+                resultPosition.ToX, resultPosition.ToY, elevation, -perpendicularConst);
+            var cp2 = GEE_Util.CirclePosition(resultPosition.ToX, resultPosition.ToY, 
+                resultPosition.FromX, resultPosition.FromY, elevation, perpendicularConst);
+            var cp3 = GEE_Util.CirclePosition(resultPosition.ToX, resultPosition.ToY, 
+                resultPosition.FromX, resultPosition.FromY, elevation, -perpendicularConst);
+                
+            var isInside = GEE_Util.IsPointInPolygon({ x: x, y: y }, [cp0, cp1, cp2, cp3]);
+                
+            if (isInside) {
+                resultConnection = connections[j];
+                break; 
+            }
+                
+            if (isDebug) {
+                ctx.beginPath();
+                ctx.moveTo(cp0.x, cp0.y);
+                ctx.lineTo(cp1.x, cp1.y);
+                ctx.lineTo(cp2.x, cp2.y);
+                ctx.lineTo(cp3.x, cp3.y);
+                ctx.lineTo(cp0.x, cp0.y);
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.closePath()
+            }
+        }
+        
+        if (resultConnection !== undefined) break;
+    }
+    
+    return resultConnection;
 }
