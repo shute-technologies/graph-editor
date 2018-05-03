@@ -124,3 +124,7 @@ GEE_Util.IsPointInPolygon = function(point, polygon) {
 
     return pointInsidePolygon;
 }
+
+GEE_Util.KeyCode = {
+    Delete: 46
+}

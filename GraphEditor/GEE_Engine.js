@@ -48,6 +48,36 @@ function GEE_Engine() {
         
         mSelf.CreateGUI();
         mSelf.CreateMouseEvents();
+        mSelf.CreateKeyboardEvents();
+    }
+    
+    this.CreateKeyboardEvents = function() {
+        mParentCanvasSelector.on('keydown', function(event) {
+            var stopPropagation = false;
+            var contrlKeyPressed = event.originalEvent.ctrlKey;
+            var metaKeyIsPressed = event.originalEvent.metaKey;
+            var shiftIsPressed = event.originalEvent.shiftKey;
+            var keyCode = event.originalEvent.keyCode;
+            
+            // Then save the file
+            switch(keyCode) {
+                case GEE_Util.KeyCode.Delete:
+                    if (mOnFocusConnection.Connection) {
+                        stopPropagation = true;
+                        
+                        mSelf.RemoveConnection(mOnFocusConnection.Connection);
+                        
+                        mOnFocusConnection.Connection.OnFocus = false;
+                        mOnFocusConnection.Connection = undefined;
+                    }
+                    break;
+            }
+            
+            if (stopPropagation) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
     }
     
     this.CreateMouseEvents = function() {
@@ -166,7 +196,7 @@ function GEE_Engine() {
     this.CreateGUI = function() {
         mParentCanvasSelectorName = "canvas-" + mParentSelectorName.substring(1);
         mParentCanvasSelector = $("<canvas id='" + mParentCanvasSelectorName + 
-            "' width='" + mWidth + "' height='" + mHeight + "'></canvas>");
+            "' width='" + mWidth + "' height='" + mHeight + "' tabindex='1'></canvas>");
         mParentCanvasSelector.css("float", "left");
         // add HTML canvas
         mParentSelector.append(mParentCanvasSelector);
