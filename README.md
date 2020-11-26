@@ -1,2 +1,1 @@
-# graph-editor
-Graph Editor for controlling animations transitions betweens
+This is a Graph Editor, still work in progress the runtime without all the editor code
