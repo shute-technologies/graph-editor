@@ -2,6 +2,7 @@ import { GEEEngine } from './geeEngine';
 import { GEEVector2, GEEUtils } from '../common/geeUtils';
 import { GEEStyles } from '../config/geeStyles';
 import { GEEGraphConnection } from './geeGraphConnection';
+import { GEEIPlaybackObject } from '../common/geeInterfaces';
 
 export interface GEIHittedResult {
   isHitted: boolean;
@@ -31,7 +32,7 @@ export class GEEGraph {
   isLoop: boolean;
   isStart: boolean;
   isMouseOver: boolean;
-  playbackObject?;
+  playbackObject?: GEEIPlaybackObject;
 
   get name(): string {
     return this._name;

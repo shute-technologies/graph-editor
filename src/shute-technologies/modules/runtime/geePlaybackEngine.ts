@@ -4,6 +4,7 @@ export class GEEPlaybackEngine {
 
   private _playingGraphs: Array<GEEIGraphData>;
   private _isPlaying: boolean;
+  private _animatorData: GEEIAnimatorData;
 
   percentage: number;
   fromPlaybackObjects: boolean;
@@ -12,10 +13,15 @@ export class GEEPlaybackEngine {
   get animatorData() { return this._animatorData; }
   get playingGraphs() { return this._playingGraphs; }
 
-  constructor(private readonly _animatorData: GEEIAnimatorData) {
+  constructor() {
     this._isPlaying = false;
     this.fromPlaybackObjects = false;
     this.percentage = 0;
+    this._playingGraphs = [];
+  }
+
+  initializeWith(animatorData: GEEIAnimatorData) {
+    this._animatorData = animatorData;
   }
 
   play(): void {
