@@ -27,7 +27,7 @@ jobs:
                 user-name: "Cristian F. Shute"
                 user-email: "chris_fs313@hotmail.com"
                 message: "Automatically built unbuilt typescript"
-                directories: ./, ./
+                directories: ./
             - name: publish
               run: npm publish --access public
               env:
