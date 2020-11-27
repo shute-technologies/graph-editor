@@ -1,6 +1,6 @@
 {
   "name": "shute-technologies.graph-editor",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "license": "MIT",
   "private": false,
   "main": "lib/index.js",
