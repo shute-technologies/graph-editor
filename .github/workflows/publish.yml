@@ -21,8 +21,13 @@ jobs:
                 ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
             - name: install npm packages
               run: npm install
-            - name: compile typescript
-              uses: icrawl/action-tsc@v1
+            - name: Building Typescript
+              uses: FuLagann/tsc-build-push@v1
+              with:
+                user-name: "Cristian F. Shute"
+                user-email: "chris_fs313@hotmail.com"
+                message: "Automatically built unbuilt typescript"
+                directories: ./, lib/
             - name: publish
               run: npm publish --access public
               env:
