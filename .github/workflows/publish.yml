@@ -22,7 +22,7 @@ jobs:
             - name: install npm packages
               run: npm install
             - name: compile typescript
-              run: icrawl/action-tsc@v1
+              uses: icrawl/action-tsc@v1
             - name: publish
               run: npm publish --access public
               env:
