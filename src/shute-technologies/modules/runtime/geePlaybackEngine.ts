@@ -105,6 +105,14 @@ export class GEEPlaybackEngine {
     }
   }
 
+  destroy(): void {
+    this._isPlaying = null;
+    this.fromPlaybackObjects = null;
+    this.percentage = null;
+    this._playingGraphs = null;
+    this._animatorData = null;
+  }
+
   static findGraphByName(graphs: Array<GEEIGraphData>, name: string) {
     return graphs.find(x => x.name === name);
   }

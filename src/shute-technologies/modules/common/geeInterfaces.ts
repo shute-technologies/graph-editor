@@ -46,4 +46,5 @@ export interface GEEIPlaybackObject {
   stop(): void;
   pause(inTime: number): void;
   update(dt: number): void;
+  destroy();
 }
