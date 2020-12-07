@@ -1,5 +1,6 @@
 export type SimpleCallback = () => void;
 export type SimpleGCallback<T> = (args?: T) => void;
+export interface GEEDictionary<T> { [Key: string]: T; }
 
 export interface GEEIAnimatorData {
   startGraph: string;
@@ -23,6 +24,11 @@ export interface GEEIGraphData {
   playbackObject: GEEIPlaybackObject;
 }
 
+export interface GEEIAnimationResult {
+  value;
+  extraParams;
+}
+
 export interface GEEIPlaybackObject {
   hasExternalTimeSource: boolean;
   onAnimationEnd: SimpleGCallback<GEEIPlaybackObject>;
@@ -32,7 +38,7 @@ export interface GEEIPlaybackObject {
   currentTime: number;
   animationSeconds: number;
   playingSpeed: number;
-  animations;
+  animations: GEEDictionary<GEEIAnimationResult>;
 
   initialize(data): void;
   invalidateAnimations(): void;
