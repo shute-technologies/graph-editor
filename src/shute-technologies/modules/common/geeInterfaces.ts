@@ -26,7 +26,6 @@ export interface GEEIGraphData {
 export interface GEEIPlaybackObject {
   hasExternalTimeSource: boolean;
   onAnimationEnd: SimpleGCallback<GEEIPlaybackObject>;
-  playbackObject: GEEIPlaybackObject;
   extraParams;
 
   // getters
