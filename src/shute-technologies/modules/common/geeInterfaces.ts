@@ -32,7 +32,6 @@ export interface GEEIPlaybackObject {
   currentTime: number;
   animationSeconds: number;
   playingSpeed: number;
-  name: string;
 
   initialize(data): void;
   invalidateAnimations(): void;
