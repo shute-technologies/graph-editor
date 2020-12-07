@@ -36,7 +36,7 @@ export interface GEEIPlaybackObject {
   name: string;
 
   initialize(data): void;
-  invalidateAnimations();
+  invalidateAnimations(): void;
   play(): void;
   stop(): void;
   pause(inTime: number): void;
