@@ -35,7 +35,7 @@ export interface GEEIPlaybackObject {
   playingSpeed: number;
   name: string;
 
-  initialize(): void;
+  initialize(data): void;
   invalidateAnimations();
   play(): void;
   stop(): void;
