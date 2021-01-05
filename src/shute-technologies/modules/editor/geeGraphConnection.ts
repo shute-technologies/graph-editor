@@ -30,13 +30,13 @@ export class GEEGraphConnection {
     offsetAngle?: number, offsetRadius?: number, colorStroke?: string, colorFill?: string, onFocus?: boolean): void {
 
     onFocus = !onFocus ? false : onFocus;
-    colorStroke = !colorStroke ? GEEStyles.arrowColor_Stroke : colorStroke;
-    colorFill = !colorFill ? GEEStyles.arrowColor_Fill : colorFill;
+    colorStroke = !colorStroke ? GEEStyles.arrowColorStroke : colorStroke;
+    colorFill = !colorFill ? GEEStyles.arrowColorFill : colorFill;
     offsetAngle = (!offsetAngle && offsetAngle !== 0) ? 0 : offsetAngle;
     offsetRadius = (!offsetRadius && offsetRadius !== 0) ? GEEGraphConnection.offsetRadius : offsetRadius;
 
     if (onFocus) {
-      colorStroke = GEEStyles.arrowColorFocus_Stroke;
+      colorStroke = GEEStyles.arrowColorFocusStroke;
     }
 
     const headlen = 5;

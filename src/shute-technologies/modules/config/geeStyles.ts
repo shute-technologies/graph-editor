@@ -4,12 +4,12 @@ export class GEEStyles {
   static backgroundColor = '#4e4e4e';
 
   // Controls: Styles
-  static cStroke_Color = '#6e6e6e';
-  static font_Color = '#f9f9f9';
+  static cStrokeColor = '#6e6e6e';
+  static fontColor = '#f9f9f9';
 
-  static arrowColor_Stroke = '#000000';
-  static arrowColorFocus_Stroke = 'white';
-  static arrowColor_Fill = '#6e6e6e';
+  static arrowColorStroke = '#000000';
+  static arrowColorFocusStroke = 'white';
+  static arrowColorFill = '#6e6e6e';
 
   static graph = {
     startColor: '#9d9d9d',
