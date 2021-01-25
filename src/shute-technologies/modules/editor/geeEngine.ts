@@ -32,6 +32,8 @@ export class GEEEngine {
   onChangeCallback: SimpleCallback;
   isForcePercentage: boolean;
 
+  set forceGEEHeight(val: number) { this._height = val; }
+
   get width(): number { return this._width; }
   get height(): number { return this._height; }
   get isPlaying(): boolean { return this._isPlaying; }
