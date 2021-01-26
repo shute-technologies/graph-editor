@@ -35,6 +35,7 @@ export interface GEEIPlaybackObject {
   extraParams;
 
   // getters
+  isPlaying: boolean;
   currentTime: number;
   animationSeconds: number;
   playingSpeed: number;
