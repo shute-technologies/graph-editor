@@ -32,6 +32,8 @@ export class GEEGraph {
   isLoop: boolean;
   isStart: boolean;
   isMouseOver: boolean;
+  forcePercentage: boolean;
+  stopPropagation: boolean;
   playbackObject?: GEEIPlaybackObject;
 
   get name(): string {
@@ -60,6 +62,8 @@ export class GEEGraph {
     this.isMouseOver = false;
     this._isPlaying = false;
     this._mouseIsDown = false;
+    this.forcePercentage = false;
+    this.stopPropagation = false;
     this.playbackObject = null;
     this._connections = [];
     this._references = [];
@@ -210,11 +214,12 @@ export class GEEGraph {
     };
   }
 
+  // tslint:disable-next-line: cyclomatic-complexity
   update(dt: number): void {
     this.draw(dt);
 
     if (this._isPlaying) {
-      if (!this.playbackObject) {
+      if (!this.playbackObject || !this.forcePercentage) {
         this.percentage += this.speed * dt;
       } else {
         // Only if have a playback object with this interface
@@ -233,8 +238,10 @@ export class GEEGraph {
           this.playbackObject?.pause(this.playbackObject?.animationSeconds);
         }
 
-        for (const connection of this._connections) {
-          connection.graphTo.play();
+        if (!this.stopPropagation) {
+          for (const connection of this._connections) {
+            connection.graphTo.play();
+          }
         }
       }
 
