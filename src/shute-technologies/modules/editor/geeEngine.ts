@@ -234,16 +234,18 @@ export class GEEEngine {
         if (hittedConnector.isHitted) { break; }
       }
 
-      if (!hittedConnector.isHitted) {
-        for (const graph of this._graphs) {
-          graph.onMouseDown(mousePos);
+      if (hittedConnector) {
+        if (!hittedConnector.isHitted) {
+          for (const graph of this._graphs) {
+            graph.onMouseDown(mousePos);
+          }
+        } else {
+          this._tryingToConnect.mousePos = mousePos;
+          this._tryingToConnect.isTrying = true;
+          this._tryingToConnect.fromGraph = hittedConnector.graph;
+          this._tryingToConnect.fromX = hittedConnector.connectorX;
+          this._tryingToConnect.fromY = hittedConnector.connectorY;
         }
-      } else {
-        this._tryingToConnect.mousePos = mousePos;
-        this._tryingToConnect.isTrying = true;
-        this._tryingToConnect.fromGraph = hittedConnector.graph;
-        this._tryingToConnect.fromX = hittedConnector.connectorX;
-        this._tryingToConnect.fromY = hittedConnector.connectorY;
       }
     });
   }
