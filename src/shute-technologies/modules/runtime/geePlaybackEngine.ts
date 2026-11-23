@@ -75,7 +75,11 @@ export class GEEPlaybackEngine {
     return graph;
   }
 
-  private onAnimationEnd(playbackObject: GEEIPlaybackObject): void {
+  // An arrow property, not a method: it is handed to each playback object as a callback
+  // (`playbackObject.onAnimationEnd = this.onAnimationEnd`), and the timeline engine calls it as
+  // `this.onAnimationEnd(this)`. As a method `this` was the playback object, so reading
+  // `this._playingGraphs` threw the first time any clip ended.
+  private onAnimationEnd = (playbackObject: GEEIPlaybackObject): void => {
     const currentGraph: GEEIGraphData = playbackObject.extraParams;
 
     // Stop current PlaybackEngine
@@ -100,7 +104,9 @@ export class GEEPlaybackEngine {
   }
 
   update(dt: number): void {
-    for (const graph of this._playingGraphs) {
+    // Iterate a snapshot: a graph that ends during its update removes itself and pushes the
+    // graphs it connects to, which would otherwise make this loop skip the next graph.
+    for (const graph of [...this._playingGraphs]) {
       graph.playbackObject.update(dt);
     }
   }
