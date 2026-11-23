@@ -191,18 +191,7 @@ export class GEEEngine {
       }
 
       if (this._tryingToConnect.isTrying) {
-        if (this._tryingToConnect.mouseOverGraph) {
-          this._tryingToConnect.mouseOverGraph.isMouseOver = false;
-
-          // Now connect the graphs
-          this._tryingToConnect.fromGraph.connectTo(this._tryingToConnect.mouseOverGraph);
-        }
-
-        this._tryingToConnect.isTrying = false;
-        this._tryingToConnect.fromX = 0;
-        this._tryingToConnect.fromY = 0;
-        this._tryingToConnect.fromGraph = null;
-        this._tryingToConnect.mouseOverGraph = null;
+        this.finishConnectAttempt();
       } else {
         // Invoke change
         if (this.onChangeCallback) { this.onChangeCallback(); }
@@ -337,6 +326,34 @@ export class GEEEngine {
     this._graphs.push(graph);
 
     return graph;
+  }
+
+  /**
+   * Ends a connection dragged with the mouse: connects to the graph under the pointer, if any, and
+   * raises onChangeCallback when that added a connection. This used to call graph.connectTo directly,
+   * so a connection made with the mouse never raised the change event and a host listening for it
+   * never saw the new transition.
+   */
+  private finishConnectAttempt(): void {
+    const { fromGraph, mouseOverGraph } = this._tryingToConnect;
+
+    if (fromGraph && mouseOverGraph) {
+      mouseOverGraph.isMouseOver = false;
+
+      // connectTo refuses a connection to itself or to a graph it already connects to.
+      const connectionsBefore = fromGraph.connections.length;
+      fromGraph.connectTo(mouseOverGraph);
+
+      if (fromGraph.connections.length !== connectionsBefore && this.onChangeCallback) {
+        this.onChangeCallback();
+      }
+    }
+
+    this._tryingToConnect.isTrying = false;
+    this._tryingToConnect.fromX = 0;
+    this._tryingToConnect.fromY = 0;
+    this._tryingToConnect.fromGraph = null;
+    this._tryingToConnect.mouseOverGraph = null;
   }
 
   connectTo(graphFrom: GEEGraph, graphTo: GEEGraph, extraParams) {
