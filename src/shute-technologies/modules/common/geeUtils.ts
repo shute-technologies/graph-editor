@@ -12,9 +12,11 @@ export class GEEUtils {
   private constructor() {}
 
   static fragmentText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) {
+    // The size in px, not the font's first number: a weight comes first in '600 11px Inter'.
+    const pixelSize = ctx.font.match(/(\d+)(?:\.\d+)?px/);
     const result = {
       lines: [],
-      height: parseInt(ctx.font.match(/\d+/) as any, 10),
+      height: pixelSize ? parseInt(pixelSize[1], 10) : parseInt(ctx.font.match(/\d+/) as any, 10),
       linesQuantity: 0,
     };
 

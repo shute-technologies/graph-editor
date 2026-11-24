@@ -86,10 +86,11 @@ export class GEEGraphConnection {
   static drawPreConnector(ctx: CanvasRenderingContext2D, fromx: number, fromy: number,
     tox: number, toy: number): void {
 
+    // The arrow dragged out of a connector wears the connector's colours.
     const offsetAngle = 0;
     const offsetRadius = 0;
-    const colorStroke = '#003300';
-    const colorFill = '#990000';
+    const colorStroke = GEEStyles.graph.circleConnector.strokeColor;
+    const colorFill = GEEStyles.graph.circleConnector.fillColor;
 
     GEEGraphConnection.drawArrow(ctx, fromx, fromy, tox, toy, offsetAngle, offsetRadius,
       colorStroke, colorFill);

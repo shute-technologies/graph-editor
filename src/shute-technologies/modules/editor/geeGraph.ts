@@ -262,6 +262,8 @@ export class GEEGraph {
 
   private draw(dt: number): void {
     const ctx = this._gee.ctx;
+    // The start node's name has its own colour, as a theme may fill that node with an accent.
+    const isStartFill = this.isStart && !this.isMouseOver;
 
     // Draw Rect
     ctx.beginPath();
@@ -275,7 +277,7 @@ export class GEEGraph {
 
     ctx.fill();
     ctx.lineWidth = GEEStyles.graph.lineSize;
-    ctx.strokeStyle = 'black';
+    ctx.strokeStyle = GEEStyles.graph.outlineColor;
     ctx.stroke();
     ctx.closePath();
 
@@ -287,7 +289,7 @@ export class GEEGraph {
 
     ctx.beginPath();
     ctx.rect(posX, posY, sizeX, sizeY);
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = GEEStyles.graph.progressColor;
     ctx.fill();
     ctx.closePath();
 
@@ -295,6 +297,7 @@ export class GEEGraph {
     const textX = this.x + GEEStyles.graph.textOffsetX;
     const textY = this.y + GEEStyles.graph.textOffsetY;
     ctx.font = GEEStyles.graph.textStyle;
+    ctx.fillStyle = isStartFill ? GEEStyles.graph.startTextColor : GEEStyles.graph.textColor;
     ctx.textAlign = 'center';
 
     const resultLines = GEEUtils.fragmentText(ctx, this._name, GEEStyles.graph.sizeX);
@@ -312,10 +315,10 @@ export class GEEGraph {
     ctx.arc(this.x + GEEStyles.graph.sizeX - (radius * 0.5) - offsetCircle,
       this.y + (radius * 0.5) + offsetCircle,
       radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = '#990000';
+    ctx.fillStyle = GEEStyles.graph.circleConnector.fillColor;
     ctx.fill();
     ctx.lineWidth = 0.5;
-    ctx.strokeStyle = '#003300';
+    ctx.strokeStyle = GEEStyles.graph.circleConnector.strokeColor;
     ctx.stroke();
   }
 
